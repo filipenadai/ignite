@@ -5,6 +5,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { FlatList } from 'react-native';
 
 import { TransactionProps } from '.';
+import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
     flex: 1;
@@ -96,3 +97,5 @@ export const Title = styled.Text`
 export const TransactionList = styled(FlatList as new () => FlatList<TransactionProps>).attrs({
   showsVerticalScrollIndicator: false,
 })``;
+
+export const LogoutButton = styled(BorderlessButton)``;
