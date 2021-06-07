@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { HighlightCard } from '../../Components/HighlightCard';
 import { TransactionCard, TransactionCardProps } from '../../Components/TransactionCard';
 
@@ -24,32 +26,39 @@ export interface TransactionProps extends TransactionCardProps {
 }
 
 export function Dashboard() {
-  const data: TransactionProps[] = [
-    {
-      id: '1',
-      type: 'positive',
-      amount: 'R$ 14.000,00',
-      category: { icon: 'dollar-sign', name: 'Venda' },
-      date: '06/06/2001',
-      title: 'Desenvolvimento de site',
-    },
-    {
-      id: '2',
-      type: 'negative',
-      amount: 'R$ 59,00',
-      category: { icon: 'coffee', name: 'Alimentação' },
-      date: '06/06/2001',
-      title: 'Hamburgueria Pizzy',
-    },
-    {
-      id: '3',
-      type: 'negative',
-      amount: 'R$ 1.200,00',
-      category: { icon: 'shopping-bag', name: 'Casa' },
-      date: '06/06/2001',
-      title: 'Aluguel do apartamento',
-    },
-  ]
+  const [data, setData] = useState<TransactionProps[]>([]);
+
+  async function loadTransactions() {
+    const dataKey = '@gofinances:transactions';
+    const response = await AsyncStorage.getItem(dataKey);
+    const transactions = response ? JSON.parse(response) : [];
+
+    const transactionsFormatted: TransactionProps[] = transactions
+    .map((item: TransactionProps) => {
+      const amount = Number(item.amount).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
+
+      const date = Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+      }).format(new Date(item.date));
+
+      return {
+        ...item,
+        date,
+        amount,
+      };
+    });
+
+    setData(transactionsFormatted);
+  }
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
 
   return (
     <Container>
@@ -76,7 +85,7 @@ export function Dashboard() {
       <HighlightCards>
         <HighlightCard
           title="Entrada"
-          amount="R$ 17.000,30"
+          amount="R$ 950.000,30"
           lastTransaction="Última entrada dia 13 de abril"
           type="up"
         />

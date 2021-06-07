@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Keyboard, Modal, TouchableWithoutFeedback } from 'react-native';
+import { Alert, Keyboard, Modal, TouchableWithoutFeedback } from 'react-native';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import uuid from 'react-native-uuid';
 
 import { Button } from '../../Components/Form/Button';
 import { InputForm } from '../../Components/Form/InputForm';
@@ -19,6 +20,7 @@ import {
   Fields,
   TransactionTypes,
 } from './styles';
+import { useNavigation } from '@react-navigation/core';
 
 const schema = Yup.object().shape({
   name: Yup
@@ -29,12 +31,20 @@ const schema = Yup.object().shape({
     .typeError('Informe um valor numérico')
     .positive('O valor precisa ser positivo')
     .required('Valor é obrigatório')
-})
+});
+
+interface FormData {
+  name: string;
+  amount: number;
+}
 
 export function Register() {
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
+  const { navigate } = useNavigation();
+
+  const dataKey = '@gofinances:transactions';
 
   const [transactionType, setTransactionType] = useState('');
   const [isSelectCategoryModalOpen, setIsSelectCategoryModalOpen] = useState(false);
@@ -55,8 +65,46 @@ export function Register() {
     setIsSelectCategoryModalOpen(false);
   }
 
-  function handleSendInfo(data) {
-    console.log(data)
+  async function handleSendInfo(data: FormData) {
+    if (!transactionType) {
+      return Alert.alert('Selecione um tipo de transação');
+    }
+
+    if (category.key === 'category') {
+      return Alert.alert('Selecione uma categoria');
+    }
+
+    const form = {
+      id: String(uuid.v4()),
+      name: data.name,
+      amount: data.amount,
+      transactionType,
+      category: category.key,
+      date: new Date(),
+    };
+
+    try {
+      const data = await AsyncStorage.getItem(dataKey);
+      const oldData = data ? JSON.parse(data) : [];
+
+      const newDataFormatted = [
+        ...oldData,
+        form
+      ]
+      await AsyncStorage.setItem(dataKey, JSON.stringify(newDataFormatted));
+
+      reset();
+      setTransactionType('');
+      setCategory({
+        key: 'category',
+        name: 'Categoria',
+      });
+
+      navigate('Listagem');
+
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
