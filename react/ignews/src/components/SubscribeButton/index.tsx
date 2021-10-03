@@ -33,6 +33,7 @@ export function SubscribeButton({ priceId }: SubscribeProps) {
     <button
       type="button"
       className={styles.subscribeButton}
+      onClick={handleSubscribe}
     >
       Subscribe Now
     </button>
