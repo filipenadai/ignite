@@ -21,6 +21,7 @@ import {
   TransactionTypes,
 } from './styles';
 import { useNavigation } from '@react-navigation/core';
+import { useAuth } from '../../hooks/auth';
 
 const schema = Yup.object().shape({
   name: Yup
@@ -43,8 +44,9 @@ export function Register() {
     resolver: yupResolver(schema),
   });
   const { navigate } = useNavigation();
+  const { user } = useAuth();
 
-  const dataKey = '@gofinances:transactions';
+  const dataKey = `@gofinances:transactions_user:${user.id}`;
 
   const [transactionType, setTransactionType] = useState('');
   const [isSelectCategoryModalOpen, setIsSelectCategoryModalOpen] = useState(false);

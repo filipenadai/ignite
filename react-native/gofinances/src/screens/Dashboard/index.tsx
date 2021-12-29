@@ -22,6 +22,7 @@ import {
 } from './styles';
 import { useFocusEffect } from '@react-navigation/core';
 import { ActivityIndicator } from 'react-native';
+import { useAuth } from '../../hooks/auth';
 
 export interface TransactionProps extends TransactionCardProps {
   id: string;
@@ -39,6 +40,8 @@ interface HighlightData {
 }
 
 export function Dashboard() {
+  const { signOut, user } = useAuth();
+
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<TransactionProps[]>([]);
   const [highlightData, setHightlightData] = useState<HighlightData>({} as HighlightData);
@@ -47,15 +50,21 @@ export function Dashboard() {
     collection: TransactionProps[],
     type: 'positive' | 'negative'
   ) {
-    const lastTransaction = new Date(Math.max.apply(Math, collection
-      .filter(transaction => transaction.type === type)
+    const collectionFiltered =  collection
+    .filter(transaction => transaction.type === type);
+
+    if (collectionFiltered.length === 0) {
+      return 0
+    }
+
+    const lastTransaction = new Date(Math.max.apply(Math, collectionFiltered
       .map(transaction => new Date(transaction.date).getTime())));
 
     return `${lastTransaction.getDate()} de ${lastTransaction.toLocaleString('pt-BR', { month: 'long' })}`;
   }
 
   async function loadTransactions() {
-    const dataKey = '@gofinances:transactions';
+    const dataKey = `@gofinances:transactions_user:${user.id}`;
     const response = await AsyncStorage.getItem(dataKey);
     const transactions = response ? JSON.parse(response) : [];
 
@@ -90,7 +99,7 @@ export function Dashboard() {
 
     const lastTransactionEntries = getLastTransaction(transactions, 'positive');
     const lastTransactionExpensives = getLastTransaction(transactions, 'negative');
-    const totalInterval = `01 à ${lastTransactionExpensives}`;
+    const totalInterval =  lastTransactionExpensives === 0 ? 'Não há transações' :  `01 à ${lastTransactionExpensives}`;
 
     const total = entriesTotal - expansiveTotal;
 
@@ -100,14 +109,14 @@ export function Dashboard() {
           style: 'currency',
           currency: 'BRL',
         }),
-        lastTransaction: `Última entrada dia: ${lastTransactionEntries}`,
+        lastTransaction: lastTransactionEntries === 0 ? 'Não há transações' : `Última entrada dia: ${lastTransactionEntries}`,
       },
       expansives: {
         amount: expansiveTotal.toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL',
         }),
-        lastTransaction: `Última saída dia: ${lastTransactionExpensives}`,
+        lastTransaction: lastTransactionExpensives === 0 ? 'Não há transações' : `Última saída dia: ${lastTransactionExpensives}`,
       },
       total: {
         amount: total.toLocaleString('pt-BR', {
@@ -138,18 +147,18 @@ export function Dashboard() {
         <Header>
           <UserWrapper>
             <UserInfo>
-              <Photo source={{ uri: 'https://avatars.githubusercontent.com/u/48576140?v=4' }} />
+              <Photo source={{ uri: user.photo }} />
               <User>
                 <UserGreeting>
                   Olá,
                 </UserGreeting>
                 <UserName>
-                  Nadai
+                  {user.name}
                 </UserName>
               </User>
             </UserInfo>
 
-            <LogoutButton onPress={() => {}}>
+            <LogoutButton onPress={signOut}>
               <Icon name="power" />
             </LogoutButton>
           </UserWrapper>

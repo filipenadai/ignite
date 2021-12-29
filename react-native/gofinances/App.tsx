@@ -15,9 +15,9 @@ import {
 } from '@expo-google-fonts/poppins';
 
 import theme from './src/global/styles/theme';
-import { AppRoutes } from './src/routes/app.routes';
+import { Routes } from './src/routes';
 import { StatusBar } from 'react-native';
-import { SignIn } from './src/screens/SignIn';
+import { AuthProvider, useAuth } from './src/hooks/auth';
 
 export default function App() {
   const [isFontsLoaded] = useFonts({
@@ -26,16 +26,18 @@ export default function App() {
     Poppins_700Bold,
   });
 
-  if (!isFontsLoaded) {
+  const { userStorageLoading } = useAuth();
+
+  if (!isFontsLoaded || userStorageLoading) {
     return <AppLoading />
   }
 
   return (
   <ThemeProvider theme={theme}>
-    <NavigationContainer>
-      <StatusBar barStyle="light-content" backgroundColor="#5636D3" />
-      <SignIn />
-    </NavigationContainer>
+      <AuthProvider>
+        <StatusBar barStyle="light-content" backgroundColor="#5636D3" />
+        <Routes />
+      </AuthProvider>
   </ThemeProvider>
   );
 }
