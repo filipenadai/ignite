@@ -50,7 +50,7 @@ function AuthProvider({ children }: IAuthProviderProps) {
     try {
       const RESPONSE_TYPE = 'token';
       const SCOPE = encodeURI('profile email');
-      console.log(CLIENT_ID, REDIRECT_URI);
+
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
 
       const { params, type } = await AuthSession.startAsync({ authUrl }) as AuthorizationResponse;
@@ -68,7 +68,6 @@ function AuthProvider({ children }: IAuthProviderProps) {
         await AsyncStorage.setItem(userStorageKey, JSON.stringify(userLogged))
       }
     } catch (err) {
-      console.log(err);
       throw new Error(err);
     }
   }
@@ -93,7 +92,7 @@ function AuthProvider({ children }: IAuthProviderProps) {
         await AsyncStorage.setItem(userStorageKey, JSON.stringify(userLogged))
       }
     } catch (error) {
-      throw new Error(error);
+      // throw new Error(error);
     }
   }
 
