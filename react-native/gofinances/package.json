@@ -55,7 +55,7 @@
     "@types/react-native": "~0.63.2",
     "@types/styled-components-react-native": "^5.1.1",
     "babel-preset-expo": "~8.3.0",
-    "jest-expo": "~41.0.0",
+    "jest-expo": "^42",
     "jest-fetch-mock": "^3.0.3",
     "jest-mock": "^27.4.2",
     "jest-styled-components": "^7.0.8",

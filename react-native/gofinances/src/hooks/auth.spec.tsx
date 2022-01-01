@@ -17,25 +17,6 @@ const userTest = {
 jest.mock('expo-auth-session')
 
 describe('Auth Hook', () => {
-  it('should be able to sign in with Google account existing', async () => {
-    const googleMocked = mocked(startAsync as any);
-    googleMocked.mockReturnValue({
-      type: 'success',
-      params: {
-        access_token: 'any_token',
-      }
-    })
-    fetchMock.mockResponseOnce(JSON.stringify(userTest));
-
-    const { result } = renderHook(() => useAuth(), {
-      wrapper: AuthProvider
-    });
-
-    await act(() => result.current.signInWithGoogle());
-
-    expect(result.current.user.email)
-      .toBe(userTest.email);
-  });
 
   it('should be not able to sign if user cancel signin', async () => {
     const googleMocked = mocked(startAsync as any);
@@ -56,4 +37,25 @@ describe('Auth Hook', () => {
       .not
       .toHaveProperty('id')
   });
+
+  it('should be able to sign in with Google account existing', async () => {
+    const googleMocked = mocked(startAsync as any);
+    googleMocked.mockReturnValue({
+      type: 'success',
+      params: {
+        access_token: 'any_token',
+      }
+    })
+    fetchMock.mockResponse(JSON.stringify(userTest));
+
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: AuthProvider
+    });
+
+    await act(() => result.current.signInWithGoogle());
+
+    expect(result.current.user.email)
+      .toBe(userTest.email);
+  });
+
 });

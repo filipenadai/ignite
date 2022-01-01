@@ -43,7 +43,7 @@ export function Register() {
   const { control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
-  const { navigate } = useNavigation();
+  // const { navigate } = useNavigation();
   const { user } = useAuth();
 
   const dataKey = `@gofinances:transactions_user:${user.id}`;
@@ -102,7 +102,7 @@ export function Register() {
         name: 'Categoria',
       });
 
-      navigate('Listagem');
+      // navigate('Listagem');
 
     } catch (err) {
       console.log(err);
@@ -147,13 +147,13 @@ export function Register() {
               />
 
             </TransactionTypes>
-            <Select title={category.name} onPress={handleOpenCategorySelectModal} />
+            <Select testID="button-category" title={category.name} onPress={handleOpenCategorySelectModal} />
           </Fields>
 
           <Button title="Enviar" onPress={handleSubmit(handleSendInfo)}/>
         </Form>
 
-        <Modal visible={isSelectCategoryModalOpen}>
+        <Modal testID="modal-category" visible={isSelectCategoryModalOpen}>
           <CategorySelect category={category} setCategory={setCategory} closeSetCategory={handleCloseCategorySelectModal} />
         </Modal>
       </Container>
